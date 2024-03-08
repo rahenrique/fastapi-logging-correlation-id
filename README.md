@@ -18,9 +18,10 @@ sudo nano ~/.zshrc
 # ou: sudo nano ~/.bashrc
 
 # adicione a seguinte linha ao arquivo:
-export PATH="/home/rafael/.local/bin:$PATH"
+export PATH="/home/<your-user>/.local/bin:$PATH"
+# o caminho correto será informado ao final do script de instalação do poetry
 
-# recarregue as configurações do termina:
+# recarregue as configurações do terminal:
 source ~/.zshrc
 # ou: source ~/.bashrc
 ```
