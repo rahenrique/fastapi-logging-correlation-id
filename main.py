@@ -1,71 +1,71 @@
 import logging
-import uuid
+from logging.config import dictConfig
 
 from aiohttp import ClientSession
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Depends, Request
+
+from utils.client import CorrelationIDAwareClientSession
+from utils.logger_configuration import LOGGING_CONFIG
+from utils.middleware import CorrelationIdMiddleware
 
 app = FastAPI()
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(asctime)s] %(levelname)-9s %(message)s',
-)
+
+@app.on_event("startup")
+async def startup():
+    """FastAPI startup
+
+    Initialize Async HTTP Client session
+    Configure logger
+    """
+    dictConfig(LOGGING_CONFIG)
+    setattr(app.state, "http_client", CorrelationIDAwareClientSession(raise_for_status=False))
 
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    original_request_id = request.headers.get("X-Request-Id")
-    logging.debug(f"The original_request_id is {original_request_id}")
-    request_id = uuid.uuid4() if original_request_id is None else original_request_id
+@app.on_event("shutdown")
+async def shutdown():
+    """FastAPI shutdown
+    Closes Async HTTP Client session
+    """
+    await app.state.http_client.close()
+    # await asyncio.wait((app.state.http_client.close()), timeout=5.0)
 
-    if original_request_id is None:
-        # request.headers["X-Request-Id"] = request_id
-        request.headers.__dict__["_list"].append(
-            (
-                "x-request-id".encode(),
-                str(request_id).encode()
-            )
-        )
 
-    logging.debug(f"The request_id is now {request.headers.get('X-Request-Id')}")
+def get_http_client(request: Request) -> ClientSession:
+    """Get an instance of an Async HTTP Client"""
+    return request.app.state.http_client
 
-    try:
-        logging.info(f"[{request_id}] Start request path={request.url.path}")
-        response = await call_next(request)
-        return response
 
-    except Exception as e:
-        logging.error(f"[{request_id}] Unhandled Exception during request: {type(e)} {e}")
+app.add_middleware(CorrelationIdMiddleware)
 
 
 @app.get("/route_one")
-async def route_one(request: Request):
+async def route_one(http_client: ClientSession = Depends(get_http_client)):
     logging.info("Logging from route_one()")
-
-    class CustomClientSession(ClientSession):
-        async def _request(self, method, url, **kwargs):
-            headers = kwargs.get("headers", {})
-            if "X-Request-Id" not in headers:
-                headers.update({"X-Request-Id": str(uuid.uuid4())})
-                kwargs.update({"headers": headers})
-            logging.info(f"ClientSession request called - headers: {kwargs.get('headers', {})}")
-            return await super()._request(method, url, **kwargs)
-
-    http_client = CustomClientSession(raise_for_status=False)
 
     async with await http_client.get(
             url="http://127.0.0.1:8000/route_two",
-            headers={"X-Custom": "123"}
-            # headers={"X-Request-Id": f"{request.headers.get('X-Request-Id')}"}
+            headers={"X-Custom": "123"},
     ) as r:
         response = await r.json()
 
-    await http_client.close()
+    return {"data": f"{response}"}
+
+
+@app.get("/route_two")
+async def route_two(http_client: ClientSession = Depends(get_http_client)):
+    logging.info("Logging from route_two()")
+
+    async with await http_client.get(
+            url="http://127.0.0.1:8000/route_three",
+            headers={"X-Custom": "123"},
+    ) as r:
+        response = await r.json()
 
     return {"status": f"{response}"}
 
 
-@app.get("/route_two")
-def route_two():
-    logging.info("Logging from route_two()")
+@app.get("/route_three")
+def route_three():
+    logging.info("Logging from route_three()")
     return True
