@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 app = FastAPI()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='[%(asctime)s] %(levelname)-9s %(message)s',
 )
 
@@ -15,7 +15,7 @@ logging.basicConfig(
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     original_request_id = request.headers.get("X-Request-Id")
-    logging.info(f"DEBUG The original_request_id is {original_request_id}")
+    logging.debug(f"The original_request_id is {original_request_id}")
     request_id = uuid.uuid4() if original_request_id is None else original_request_id
 
     if original_request_id is None:
@@ -27,7 +27,7 @@ async def log_requests(request: Request, call_next):
             )
         )
 
-    logging.info(f"DEBUG The request_id is now {request.headers.get('X-Request-Id')}")
+    logging.debug(f"The request_id is now {request.headers.get('X-Request-Id')}")
 
     try:
         logging.info(f"[{request_id}] Start request path={request.url.path}")
@@ -42,11 +42,21 @@ async def log_requests(request: Request, call_next):
 async def route_one(request: Request):
     logging.info("Logging from route_one()")
 
-    http_client = ClientSession(raise_for_status=False)
+    class CustomClientSession(ClientSession):
+        async def _request(self, method, url, **kwargs):
+            headers = kwargs.get("headers", {})
+            if "X-Request-Id" not in headers:
+                headers.update({"X-Request-Id": str(uuid.uuid4())})
+                kwargs.update({"headers": headers})
+            logging.info(f"ClientSession request called - headers: {kwargs.get('headers', {})}")
+            return await super()._request(method, url, **kwargs)
+
+    http_client = CustomClientSession(raise_for_status=False)
 
     async with await http_client.get(
             url="http://127.0.0.1:8000/route_two",
-            headers={"X-Request-Id": f"{request.headers.get('X-Request-Id')}"}
+            headers={"X-Custom": "123"}
+            # headers={"X-Request-Id": f"{request.headers.get('X-Request-Id')}"}
     ) as r:
         response = await r.json()
 
