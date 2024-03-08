@@ -1,5 +1,5 @@
-LOGGING_FORMAT_DEFAULT: str = '%(levelname)-9s [%(correlation_id)s] [%(app_name)s] %(asctime)s - %(message)s' # NOQA
-LOGGING_FORMAT_ACCESS: str = '%(levelname)-9s [%(correlation_id)s] [%(app_name)s] %(asctime)s - %(client_addr)s - "%(request_line)s" %(status_code)s' # NOQA
+LOGGING_FORMAT_DEFAULT: str = '%(levelname)-9s [%(correlation_id)s] [%(app_name)s] %(asctime)s - %(message)s'  # NOQA
+LOGGING_FORMAT_ACCESS: str = '%(levelname)-9s [%(correlation_id)s] [%(app_name)s] %(asctime)s - %(client_addr)s - "%(request_line)s" %(status_code)s'  # NOQA
 LOGGING_LEVEL: str = "DEBUG"
 
 LOGGING_CONFIG = {

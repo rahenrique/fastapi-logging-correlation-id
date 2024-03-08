@@ -50,4 +50,4 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
             return response
 
         except Exception as err:
-            logging.error(f"Unhandled Exception: {type(err)} {err}", exc_info=True) # NOQA
+            logging.error(f"Unhandled Exception: {type(err)} {err}", exc_info=True)  # NOQA
