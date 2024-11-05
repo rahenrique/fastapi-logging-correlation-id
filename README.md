@@ -3,32 +3,38 @@
 
 ## Requerimentos
 
-### poetry
-Instalar o poetry
+### uv
+Instalar uv
+https://docs.astral.sh/uv/getting-started/installation/
 
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Configurar integração com o terminal
 
 ```bash
-# edite o arquivo de configuração do terminal:
-sudo nano ~/.zshrc
-# ou: sudo nano ~/.bashrc
+echo 'eval "$(uv generate-shell-completion bash)"' >> ~/.bashrc
+echo 'eval "$(uv generate-shell-completion zsh)"' >> ~/.zshrc
 
-# adicione a seguinte linha ao arquivo:
-export PATH="/home/rafael/.local/bin:$PATH"
+echo 'eval "$(uvx --generate-shell-completion bash)"' >> ~/.bashrc
+echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.zshrc
 
-# recarregue as configurações do termina:
-source ~/.zshrc
-# ou: source ~/.bashrc
+source $HOME/.cargo/env
 ```
+
+Instalar uma versão específica do Pyton
+```bash
+uv python install 3.12
+uv python pin 3.12
+```
+
 
 Instalar as dependências do projeto
 
 ```bash
-poetry install --no-root
+# poetry install --no-root
+uv sync --frozen
 ```
 
 
