@@ -33,7 +33,6 @@ uv python pin 3.12
 Instalar as dependências do projeto
 
 ```bash
-# poetry install --no-root
 uv sync --frozen
 ```
 
