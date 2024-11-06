@@ -4,14 +4,14 @@
 ## Requerimentos
 
 ### uv
-Instalar uv
+Install uv
 https://docs.astral.sh/uv/getting-started/installation/
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Configurar integração com o terminal
+Configure terminal integration:
 
 ```bash
 echo 'eval "$(uv generate-shell-completion bash)"' >> ~/.bashrc
@@ -23,21 +23,21 @@ echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.zshrc
 source $HOME/.cargo/env
 ```
 
-Instalar uma versão específica do Pyton
+Install a specific version of Python:
 ```bash
 uv python install 3.12
 uv python pin 3.12
 ```
 
 
-Instalar as dependências do projeto
+Install the project dependencies:
 
 ```bash
 uv sync --frozen
 ```
 
 
-## Rodando o projeto
+## Running the project
 
 ```bash
 source .venv/bin/activate
@@ -45,15 +45,15 @@ uvicorn main:app --reload
 ```
 
 
-## Testando o projeto
+## Testing the project
 
-Em outro terminal, use CURL para acessar a rota /route_one da API.
+In another terminal, use CURL to access the API's /route_one endpoint.
 
 ```bash
 curl http://127.0.0.1:8000/route_one
 ```
 
-Os logs da API deverão aparecer no primeiro terminal demonstrando os Correlation IDs mantidos entre as chamadas:
+The API logs should appear in the first terminal, showing the Correlation IDs maintained across calls:
 ```bash
 INFO      [00000000-0000-0000-0000-000000000000] [Sample FastAPI App] 2024-03-08 14:14:07,785 - Application startup complete.
 INFO      [67725191-13b7-4d9a-bf66-b609c081bd24] [Sample FastAPI App] 2024-03-08 14:14:11,388 - Logging from route_one()
@@ -66,26 +66,24 @@ INFO      [67725191-13b7-4d9a-bf66-b609c081bd24] [Sample FastAPI App] 2024-03-08
 INFO      [67725191-13b7-4d9a-bf66-b609c081bd24] [Sample FastAPI App] 2024-03-08 14:14:11,401 - 127.0.0.1:34184 - "GET /route_one HTTP/1.1" 200 OK
 ```
 
-Caso seja enviado um Correlation ID pelo header da requisição inicial, este é mantido nas chamadas subsequentes:
+If a Correlation ID is sent in the initial request header, it is maintained in subsequent calls:
 ```bash
 curl -H "X-Correlation-Id: c8f6a9f9-3883-42fc-be6e-5fbe365498c9" http://127.0.0.1:8000/route_one
 ```
 
 
-## Testando o projeto - comunicação entre dois serviços mantendo UUID entre chamadas
-
-Para demonstrar o comportamento dos Correlation IDs em comunicações entre diferentes serviços, é necessário iniciar duas instâncias da aplicação.
-Abra um primeiro terminal, e rode o comando:
+## Testing the project - Communication between two services maintaining UUID across calls
+To demonstrate Correlation IDs in communications between different services, start two instances of the application. Open a first terminal and run the command:
 ```bash
 export APP_NAME="FastAPI App 001" && uvicorn main:app --reload --port=8000
 ```
 
-Agora, abra um segundo terminal e rode o comando (repare que alteramos o nome da aplicação, e sua porta):
+Now, open a second terminal and run the command (notice we change the app name and port):
 ```bash
 export APP_NAME="FastAPI App 002" && uvicorn main:app --reload --port=8001
 ```
 
-Por fim, em um terceiro terminal, rode o comando para realizar uma chamada à rota da segunda aplicação:
+Finally, in a third terminal, run the command to make a call to the second application's route:
 ```bash
 curl -H "X-Correlation-Id: 0192ff5a-955e-7736-b36f-5700a5645ccc" http://127.0.0.1:8001/route_one
 ```
