@@ -71,4 +71,21 @@ Caso seja enviado um Correlation ID pelo header da requisição inicial, este é
 curl -H "X-Correlation-Id: c8f6a9f9-3883-42fc-be6e-5fbe365498c9" http://127.0.0.1:8000/route_one
 ```
 
-TODO: Demonstrar o comportamento dos Correlation IDs em comunicações entre diferentes serviços
+
+## Testando o projeto - comunicação entre dois serviços mantendo UUID entre chamadas
+
+Para demonstrar o comportamento dos Correlation IDs em comunicações entre diferentes serviços, é necessário iniciar duas instâncias da aplicação.
+Abra um primeiro terminal, e rode o comando:
+```bash
+export APP_NAME="FastAPI App 001" && uvicorn main:app --reload --port=8000
+```
+
+Agora, abra um segundo terminal e rode o comando (repare que alteramos o nome da aplicação, e sua porta):
+```bash
+export APP_NAME="FastAPI App 002" && uvicorn main:app --reload --port=8001
+```
+
+Por fim, em um terceiro terminal, rode o comando para realizar uma chamada à rota da segunda aplicação:
+```bash
+curl -H "X-Correlation-Id: 0192ff5a-955e-7736-b36f-5700a5645ccc" http://127.0.0.1:8001/route_one
+```

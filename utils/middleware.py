@@ -1,11 +1,12 @@
 import logging
+import os
 import uuid
 from contextvars import ContextVar
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-APP_NAME = "Sample FastAPI App"
+APP_NAME = os.getenv("APP_NAME", "Sample FastAPI App")
 CORRELATION_ID_HEADER_KEY = "X-Correlation-Id"
 CORRELATION_ID_CONTEXT_KEY = "correlation_id"
 UUID_ZERO = str(uuid.UUID(int=0))

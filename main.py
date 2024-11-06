@@ -15,8 +15,8 @@ app = FastAPI()
 async def startup():
     """FastAPI startup
 
+    Configure logger; and
     Initialize Async HTTP Client session
-    Configure logger
     """
     dictConfig(LOGGING_CONFIG)
     setattr(app.state, "http_client", CorrelationIDAwareClientSession(raise_for_status=False))
