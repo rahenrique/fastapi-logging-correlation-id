@@ -1,7 +1,7 @@
 # FastAPI Logging with Correlation-ID
 
 
-## Requerimentos
+## Requirements
 
 ### uv
 Install uv
