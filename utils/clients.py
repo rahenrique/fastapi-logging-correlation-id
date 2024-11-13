@@ -32,7 +32,6 @@ class CorrelationIDAwareUplinkConsumer(Consumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # headers = kwargs.get("headers", {})
 
         if CORRELATION_ID_HEADER_KEY not in self.session.headers:
             correlation_id = correlation_id_context.get()
