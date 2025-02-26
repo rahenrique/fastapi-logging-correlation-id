@@ -19,8 +19,6 @@ echo 'eval "$(uv generate-shell-completion zsh)"' >> ~/.zshrc
 
 echo 'eval "$(uvx --generate-shell-completion bash)"' >> ~/.bashrc
 echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.zshrc
-
-source $HOME/.cargo/env
 ```
 
 Install a specific version of Python:
